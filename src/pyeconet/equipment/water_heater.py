@@ -145,3 +145,13 @@ class EcoNetWaterHeater(object):
             self._last_update = 0
         else:
             _LOGGER.error("Invalid mode: " + str(mode))
+
+    def __getattr__(self, item):
+        if item in self.json_state:
+            return self.json_state[item]
+        elif item in self._usage:
+            return self._usage[item]
+        else:
+            msg = "'{}' object has no attribute '{}'"
+            raise AttributeError(msg.format(self.__class__.__name__, item))
+
