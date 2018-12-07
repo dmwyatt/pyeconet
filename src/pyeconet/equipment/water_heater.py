@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 import time
 
 from ..vacation import EcoNetVacation
@@ -88,6 +88,18 @@ class EcoNetWaterHeater(object):
                 total += usage
             return total
 
+    @property
+    def upper_temp(self):
+        return self.json_state.get('upperTemp')
+
+    @property
+    def lower_temp(self):
+        return self.json_state.get('lowerTemp')
+
+    @property
+    def ambient_temp(self):
+        return self.json_state.get('ambientTemp')
+
     def get_vacations(self):
         return self.vacations
 
@@ -134,7 +146,7 @@ class EcoNetWaterHeater(object):
         end_date_string = end_date.strftime("%Y-%m-%dT%H:%M:%S")
 
         body = {"startDate": start_date_string, "endDate": end_date_string,
-                "location": { "id": _location_id },
+                "location": {"id": _location_id},
                 "participatingEquipment": [{"id": _id}]}
         self.api_interface.create_vacation(body)
         self._last_update = 0
@@ -145,13 +157,3 @@ class EcoNetWaterHeater(object):
             self._last_update = 0
         else:
             _LOGGER.error("Invalid mode: " + str(mode))
-
-    def __getattr__(self, item):
-        if item in self.json_state:
-            return self.json_state[item]
-        elif item in self._usage:
-            return self._usage[item]
-        else:
-            msg = "'{}' object has no attribute '{}'"
-            raise AttributeError(msg.format(self.__class__.__name__, item))
-
